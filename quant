@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QUANT MARKET</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151d2a;
+            --card-border: #232d3f;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent-blue: #0088cc;
+            --accent-blue-hover: #0077b5;
+            --selected-border: #38bdf8;
+            --error-color: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--card-border);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: 0.08em;
+            background: linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .crypto-counters {
+            display: flex;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .counter-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            padding: 5px 9px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-primary);
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Шапка покупки звезд */
+        .stars-header {
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+        }
+
+        .stars-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+
+        .stars-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            margin: 0 0 20px 0;
+        }
+
+        .recipient-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .recipient-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .buy-for-myself-btn {
+            background: none;
+            border: none;
+            color: #38bdf8;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 0;
+        }
+
+        .buy-for-myself-btn:hover {
+            text-decoration: underline;
+        }
+
+        .username-input-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            gap: 12px;
+            transition: border-color 0.2s;
+        }
+
+        .username-input-container.error {
+            border-color: var(--error-color);
+        }
+
+        .username-input-container input {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            width: 100%;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        .username-input-container input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .input-error-msg {
+            color: var(--error-color);
+            font-size: 0.75rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Список звезд */
+        .stars-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .star-row {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .star-row.selected {
+            border-color: var(--selected-border);
+            background-color: rgba(56, 189, 248, 0.04);
+            box-shadow: 0 0 0 1px var(--selected-border);
+        }
+
+        .star-row-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .radio-circle {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--text-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s;
+        }
+
+        .star-row.selected .radio-circle {
+            border-color: var(--selected-border);
+        }
+
+        .radio-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--selected-border);
+            border-radius: 50%;
+            display: none;
+        }
+
+        .star-row.selected .radio-dot {
+            display: block;
+        }
+
+        .star-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .star-prices {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 0.88rem;
+        }
+
+        .price-usd {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .price-gram {
+            color: #38bdf8;
+            font-weight: 600;
+        }
+
+        .price-rub {
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+        }
+
+        /* Список NFT в маркете */
+        .nft-market-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .nft-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--card-bg);
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+        }
+
+        .nft-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nft-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: radial-gradient(circle at center, #1f293d 0%, #0f172a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nft-avatar img {
+            width: 82%;
+            height: 82%;
+            object-fit: contain;
+        }
+
+        .nft-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .nft-name {
+            font-weight: 700;
+            font-size: 0.98rem;
+            color: var(--text-primary);
+        }
+
+        .nft-id {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .nft-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nft-buy-btn {
+            background-color: var(--accent-blue);
+            color: #ffffff;
+            border: none;
+            border-radius: 20px;
+            padding: 7px 16px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.2s;
+        }
+
+        .nft-buy-btn:hover {
+            background-color: var(--accent-blue-hover);
+        }
+
+        .nft-action-icon {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: background 0.2s;
+        }
+
+        .nft-action-icon:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Способ оплаты */
+        .payment-container {
+            max-width: 600px;
+            margin: 24px auto 0 auto;
+        }
+
+        .payment-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .pay-method-card {
+            flex: 1;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .pay-method-card.active {
+            border-color: var(--selected-border);
+            background-color: rgba(56, 189, 248, 0.04);
+            box-shadow: 0 0 0 1px var(--selected-border);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.98rem;
+            transition: background 0.2s;
+            margin-bottom: 16px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-blue-hover);
+        }
+
+        .history-link {
+            text-align: center;
+        }
+
+        .history-link a {
+            color: #38bdf8;
+            text-decoration: none;
+            font-size: 0.88rem;
+        }
+
+        .history-link a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-blue-hover);
+        }
+
+        /* Модальное окно */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 320px;
+            width: 85%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal-text {
+            font-size: 0.92rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+
+        .username {
+            color: #38bdf8;
+            font-weight: 700;
+        }
+
+        /* Фиксированное нижнее навигационное меню */
+        nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+            width: 33.33%;
+        }
+
+        .nav-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+        }
+
+        .nav-btn.active {
+            color: #38bdf8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Шапка QUANT MARKET -->
+    <header>
+        <div class="logo">QUANT MARKET</div>
+        <div class="crypto-counters">
+            <div class="counter-item">💎 <span id="gram-count">0</span> GRAM</div>
+            <div class="counter-item">💵 <span id="usdt-count">0.00</span> USDT</div>
+            <div class="counter-item">₽ <span id="rub-count">0</span></div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <div class="content">
+        <!-- Вкладка 1: Покупка звезд -->
+        <div id="tab-stars" class="tab-content active">
+            
+            <div class="stars-header">
+                <h1 class="stars-title">Buy Telegram Stars ⭐</h1>
+                <p class="stars-subtitle">Top up Stars Balance for yourself or your friends and colleagues.</p>
+                
+                <div class="recipient-row">
+                    <span class="recipient-label">Choose recipient</span>
+                    <button class="buy-for-myself-btn" onclick="setMyUsername()">Buy for myself</button>
+                </div>
+                
+                <div class="username-input-container" id="input-container">
+                    <span style="color: var(--text-secondary);">🔍</span>
+                    <input type="text" id="username-input" placeholder="Enter Telegram username..." oninput="validateUsername()">
+                </div>
+                <div class="input-error-msg" id="error-msg">Юзернейм должен начинаться с @ и содержать от 5 английских символов, цифр или подчёркиваний.</div>
+            </div>
+
+            <div class="stars-list" id="stars-list">
+                <div class="star-row selected" onclick="selectStarRow(this, '50 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 50 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$0.75</span>
+                        <span class="price-gram">0.5168 💎</span>
+                        <span class="price-rub">63.75 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '75 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 75 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$1.13</span>
+                        <span class="price-gram">0.7753 💎</span>
+                        <span class="price-rub">96.05 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '100 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 100 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$1.50</span>
+                        <span class="price-gram">1.0337 💎</span>
+                        <span class="price-rub">127.50 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '150 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 150 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$2.25</span>
+                        <span class="price-gram">1.5506 💎</span>
+                        <span class="price-rub">191.25 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '250 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 250 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$3.75</span>
+                        <span class="price-gram">2.5844 💎</span>
+                        <span class="price-rub">318.75 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '350 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 350 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$5.25</span>
+                        <span class="price-gram">3.6181 💎</span>
+                        <span class="price-rub">446.25 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '500 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 500 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$7.50</span>
+                        <span class="price-gram">5.1688 💎</span>
+                        <span class="price-rub">637.50 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '750 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 750 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$11.25</span>
+                        <span class="price-gram">7.7532 💎</span>
+                        <span class="price-rub">956.25 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '1,000 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 1,000 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$15</span>
+                        <span class="price-gram">10.34 💎</span>
+                        <span class="price-rub">1,275.00 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '1,500 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 1,500 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$22.50</span>
+                        <span class="price-gram">15.51 💎</span>
+                        <span class="price-rub">1,912.50 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '2,500 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 2,500 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$37.50</span>
+                        <span class="price-gram">25.84 💎</span>
+                        <span class="price-rub">3,187.50 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '5,000 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 5,000 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$75</span>
+                        <span class="price-gram">51.69 💎</span>
+                        <span class="price-rub">6,375.00 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '10,000 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 10,000 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$150</span>
+                        <span class="price-gram">103.38 💎</span>
+                        <span class="price-rub">12,750.00 ₽</span>
+                    </div>
+                </div>
+
+                <div class="star-row" onclick="selectStarRow(this, '25,000 Stars')">
+                    <div class="star-row-left">
+                        <div class="radio-circle"><div class="radio-dot"></div></div>
+                        <div class="star-info">⭐ 25,000 Stars</div>
+                    </div>
+                    <div class="star-prices">
+                        <span class="price-usd">$375</span>
+                        <span class="price-gram">258.44 💎</span>
+                        <span class="price-rub">31,875.00 ₽</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Способ оплаты -->
+            <div class="payment-container">
+                <div class="payment-title">Payment Method</div>
+                <div class="payment-methods">
+                    <div class="pay-method-card active" onclick="selectPaymentMethod(this)">
+                        💎 GRAM TON
+                    </div>
+                    <div class="pay-method-card" onclick="selectPaymentMethod(this)">
+                        💵 USDT
+                    </div>
+                    <div class="pay-method-card" onclick="selectPaymentMethod(this)">
+                        ₽ Рубли
+                    </div>
+                </div>
+                
+                <button class="btn-primary" id="buy-action-btn">
+                    Buy 50 Telegram Stars
+                </button>
+                
+                <div class="history-link">
+                    <a href="#" onclick="event.preventDefault(); alert('История транзакций пуста');">View Transactions History</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Вкладка 2: Маркет NFT -->
+        <div id="tab-market" class="tab-content">
+            <h2 style="max-width: 600px; margin: 0 auto 16px auto; font-size: 1.2rem;">Маркет подарков</h2>
+            
+            <div class="nft-market-list">
+
+                <!-- Lol Pop -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/lol-pop.webp" alt="Lol Pop">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Lol Pop</div>
+                            <div class="nft-id">#13930</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Lol Pop', '8.79 GRAM')">8.79 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Moon Pendant #59796 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/moon-pendant.webp" alt="Moon Pendant">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Moon Pendant</div>
+                            <div class="nft-id">#59796</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Moon Pendant #59796', '26.01 GRAM')">26.01 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Snake Box -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/snake-box.webp" alt="Snake Box">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Snake Box</div>
+                            <div class="nft-id">#60746</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Snake Box', '5.09 GRAM')">5.09 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Surge Board -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/surge-board.webp" alt="Surge Board">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Surge Board</div>
+                            <div class="nft-id">#504</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Surge Board', '21.98 GRAM')">21.98 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Money Pot #56229 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/money-pot.webp" alt="Money Pot">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Money Pot</div>
+                            <div class="nft-id">#56229</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Money Pot #56229', '7.96 GRAM')">7.96 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Snoop Dogg -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/snoop-dogg.webp" alt="Snoop Dogg">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Snoop Dogg</div>
+                            <div class="nft-id">#557730</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Snoop Dogg', '7.98 GRAM')">7.98 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Chill Flame #118424 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/chill-flame.webp" alt="Chill Flame">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Chill Flame</div>
+                            <div class="nft-id">#118424</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Chill Flame #118424', '4.99 GRAM')">4.99 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Clover Pin #5900 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/clover-pin.webp" alt="Clover Pin">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Clover Pin</div>
+                            <div class="nft-id">#5900</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Clover Pin #5900', '25.99 GRAM')">25.99 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Money Pot #56639 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/money-pot.webp" alt="Money Pot">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Money Pot</div>
+                            <div class="nft-id">#56639</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Money Pot #56639', '4.96 GRAM')">4.96 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Desk Calendar #138095 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/desk-calendar.webp" alt="Desk Calendar">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Desk Calendar</div>
+                            <div class="nft-id">#138095</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Desk Calendar #138095', '4.97 GRAM')">4.97 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Liberty Figure -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/liberty-figure.webp" alt="Liberty Figure">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Liberty Figure</div>
+                            <div class="nft-id">#130051</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Liberty Figure', '7.87 GRAM')">7.87 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Money Pot #20453 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/money-pot.webp" alt="Money Pot">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Money Pot</div>
+                            <div class="nft-id">#20453</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Money Pot #20453', '7.59 GRAM')">7.59 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Chill Flame #209322 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/chill-flame.webp" alt="Chill Flame">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Chill Flame</div>
+                            <div class="nft-id">#209322</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Chill Flame #209322', '4.99 GRAM')">4.99 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Victory Medal #18807 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/victory-medal.webp" alt="Victory Medal">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Victory Medal</div>
+                            <div class="nft-id">#18807</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Victory Medal #18807', '23 GRAM')">23 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Moon Pendant #35068 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/moon-pendant.webp" alt="Moon Pendant">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Moon Pendant</div>
+                            <div class="nft-id">#35068</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Moon Pendant #35068', '10.15 GRAM')">10.15 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Ionic Dryer -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/ionic-dryer.webp" alt="Ionic Dryer">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Ionic Dryer</div>
+                            <div class="nft-id">#12450</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Ionic Dryer', '20.51 GRAM')">20.51 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Clover Pin #103013 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/clover-pin.webp" alt="Clover Pin">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Clover Pin</div>
+                            <div class="nft-id">#103013</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Clover Pin #103013', '7.91 GRAM')">7.91 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Money Pot #35840 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/money-pot.webp" alt="Money Pot">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Money Pot</div>
+                            <div class="nft-id">#35840</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Money Pot #35840', '7.92 GRAM')">7.92 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Xmas Stocking -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/xmas-stocking.webp" alt="Xmas Stocking">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Xmas Stocking</div>
+                            <div class="nft-id">#127991</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Xmas Stocking', '5.91 GRAM')">5.91 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Signet Ring -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/signet-ring.webp" alt="Signet Ring">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Signet Ring</div>
+                            <div class="nft-id">#8148</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Signet Ring', '31.98 GRAM')">31.98 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Faith Amulet -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/faith-amulet.webp" alt="Faith Amulet">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Faith Amulet</div>
+                            <div class="nft-id">#92350</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Faith Amulet', '8.94 GRAM')">8.94 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Hanging Star -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/hanging-star.webp" alt="Hanging Star">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Hanging Star</div>
+                            <div class="nft-id">#22874</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Hanging Star', '33.32 GRAM')">33.32 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Vice Cream #302000 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/vice-cream.webp" alt="Vice Cream">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Vice Cream</div>
+                            <div class="nft-id">#302000</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Vice Cream #302000', '4.96 GRAM')">4.96 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Jack-in-the-Box -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/jack-in-the-box.webp" alt="Jack-in-the-Box">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Jack-in-the-Box</div>
+                            <div class="nft-id">#81157</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Jack-in-the-Box', '5.94 GRAM')">5.94 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Snoop Cigar -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/snoop-cigar.webp" alt="Snoop Cigar">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Snoop Cigar</div>
+                            <div class="nft-id">#51563</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Snoop Cigar', '17.77 GRAM')">17.77 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Jingle Bells -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/jingle-bells.webp" alt="Jingle Bells">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Jingle Bells</div>
+                            <div class="nft-id">#90954</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Jingle Bells', '24.19 GRAM')">24.19 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Vice Cream #319547 -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/vice-cream.webp" alt="Vice Cream">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Vice Cream</div>
+                            <div class="nft-id">#319547</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Vice Cream #319547', '7 GRAM')">7 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Chill Flame -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/chill-flame.webp" alt="Chill Flame">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Chill Flame</div>
+                            <div class="nft-id">#408726</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Chill Flame', '8.6 GRAM')">8.6 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Happy Brownie -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/happy-brownie.webp" alt="Happy Brownie">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Happy Brownie</div>
+                            <div class="nft-id">#14928</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Happy Brownie', '8 GRAM')">8 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Victory Medal -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/victory-medal.webp" alt="Victory Medal">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Victory Medal</div>
+                            <div class="nft-id">#88242</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Victory Medal', '11 GRAM')">11 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Pretty Posy -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/pretty-posy.webp" alt="Pretty Posy">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Pretty Posy</div>
+                            <div class="nft-id">#65148</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Pretty Posy', '15.2 GRAM')">15.2 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+                <!-- Desk Calendar -->
+                <div class="nft-item">
+                    <div class="nft-left">
+                        <div class="nft-avatar">
+                            <img src="https://nft.fragment.com/gift/desk-calendar.webp" alt="Desk Calendar">
+                        </div>
+                        <div class="nft-details">
+                            <div class="nft-name">Desk Calendar</div>
+                            <div class="nft-id">#307406</div>
+                        </div>
+                    </div>
+                    <div class="nft-right">
+                        <button class="nft-buy-btn" onclick="buyNft('Desk Calendar', '50 GRAM')">50 💎</button>
+                        <button class="nft-action-icon" title="В корзину">🛍️</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Вкладка 3: Инвентарь -->
+        <div id="tab-inventory" class="tab-content">
+            <h2 style="max-width: 600px; margin: 0 auto 16px auto; font-size: 1.2rem;">Инвентарь</h2>
+            <p style="color: var(--text-secondary); text-align: center; margin-top: 30px;">Ваши подарки будут отображаться здесь после пополнения.</p>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn" id="topup-btn">Пополнить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Устойчивое нижнее меню навигации с иконками -->
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('stars', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/></svg>
+            <span>Звезды</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('market', this)">
+            <svg viewBox="0 0 24 24"><path d="M19 6h-2c0-2.8-2.2-5-5-5s-5 2.2-5 5H7c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.7 0 3 1.3 3 3h-6c0-1.7 1.3-3 3-3zm7 17H5V8h14v12z"/></svg>
+            <span>Маркет</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('inventory', this)">
+            <svg viewBox="0 0 24 24"><path d="M20 7h-4V5c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm-10-2h4v2h-4V5zm10 14H4V9h16v10z"/></svg>
+            <span>Инвентарь</span>
+        </button>
+    </nav>
+
+    <!-- Модальное окно пополнения -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-text">
+                ДЛЯ ПОПОЛНЕНИЯ ИНВЕНТАРЯ ПЕРЕДАЙТЕ ПОДАРКИ НА АККАУНТ <span class="username">@marketofferstelegram</span>
+            </div>
+            <button class="btn" id="close-modal">Хорошо</button>
+        </div>
+    </div>
+
+    <script>
+        // Переключение вкладок
+        function switchTab(tabName, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabName).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // Выбор строки со звездами
+        function selectStarRow(rowElement, starsText) {
+            document.querySelectorAll('.star-row').forEach(row => {
+                row.classList.remove('selected');
+            });
+            rowElement.classList.add('selected');
+
+            const buyBtn = document.getElementById('buy-action-btn');
+            buyBtn.textContent = `Buy ${starsText} Telegram Stars`;
+        }
+
+        // Выбор метода оплаты
+        function selectPaymentMethod(cardElement) {
+            document.querySelectorAll('.pay-method-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            cardElement.classList.add('active');
+        }
+
+        // Кнопка "Buy for myself"
+        function setMyUsername() {
+            const input = document.getElementById('username-input');
+            input.value = "@my_account";
+            validateUsername();
+        }
+
+        // Валидация юзернейма
+        function validateUsername() {
+            const input = document.getElementById('username-input');
+            const container = document.getElementById('input-container');
+            const errorMsg = document.getElementById('error-msg');
+            const val = input.value.trim();
+
+            const regex = /^@[a-zA-Z0-9_]{5,}$/;
+
+            if (val === "" || regex.test(val)) {
+                container.classList.remove('error');
+                errorMsg.style.display = 'none';
+            } else {
+                container.classList.add('error');
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        // Покупка NFT
+        function buyNft(name, price) {
+            alert(`Для покупки NFT "${name}" (${price}) недостаточно средств на балансе.`);
+        }
+
+        // Логика модального окна
+        const modalOverlay = document.getElementById('modal-overlay');
+        const topupBtn = document.getElementById('topup-btn');
+        const closeModalBtn = document.getElementById('close-modal');
+
+        topupBtn.addEventListener('click', () => {
+            modalOverlay.style.display = 'flex';
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            modalOverlay.style.display = 'none';
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
